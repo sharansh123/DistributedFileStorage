@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class TCPTransport implements Transport {
@@ -29,19 +30,19 @@ public class TCPTransport implements Transport {
     ReadLock readLock;
     Map<Socket, Peer> peers;
     ArrayBlockingQueue<String> channel;
-    Handshaker handshaker;
+    Consumer<Socket> handshake;
 
     public final static Logger logger = Logger.getLogger(TCPTransport.class.getName());
 
 
-    public TCPTransport(String listenAddress, int listenPort, Handshaker handshaker) {
+    public TCPTransport(String listenAddress, int listenPort, Consumer<Socket> handshake) {
         this.listenAddress = listenAddress;
         this.listenPort = listenPort;
         peers = new HashMap<>();
         ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
         this.readLock = rwl.readLock();
         this.writeLock = rwl.writeLock();
-        this.handshaker = handshaker;
+        this.handshake = handshake;
         this.channel = new ArrayBlockingQueue<String>(100, true);
     }
 

@@ -1,16 +1,17 @@
 package my.own;
 
-import my.own.models.NoHandshake;
 import my.own.models.TCPTransport;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.function.Consumer;
 
 public class Main {
     public static void main(String[] args) {
 
         System.out.println("Hello, World!");
-        TCPTransport tcpTransport = new TCPTransport("127.0.0.1", 4000, new NoHandshake());
+        Consumer<Socket> noHandshake = socket -> {};
+        TCPTransport tcpTransport = new TCPTransport("127.0.0.1", 4000, noHandshake);
         try {
             Thread.ofVirtual().start(
                     () -> {
