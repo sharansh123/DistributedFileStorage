@@ -1,9 +1,12 @@
 package my.own;
 
 import my.own.models.TCPTransport;
+import my.own.p2p.Peer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class Main {
@@ -11,7 +14,8 @@ public class Main {
 
         System.out.println("Hello, World!");
         Consumer<Socket> noHandshake = socket -> {};
-        TCPTransport tcpTransport = new TCPTransport("127.0.0.1", 4000, noHandshake);
+        Consumer<Peer> onPeer = peer -> {};
+        TCPTransport tcpTransport = new TCPTransport("127.0.0.1", 4000, noHandshake, onPeer);
         try {
             Thread.ofVirtual().start(
                     () -> {
@@ -26,8 +30,9 @@ public class Main {
             );
             System.out.println("Starting TCP transport");
             tcpTransport.listen();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        } catch (Exception e) {
+            System.err.println("Error while listening on peer: " + e);
         }
     }
 }

@@ -1,5 +1,6 @@
 package my.own.models;
 
+import my.own.exceptions.PeerRejectedException;
 import my.own.p2p.Peer;
 import my.own.p2p.Transport;
 
@@ -31,11 +32,12 @@ public class TCPTransport implements Transport {
     Map<Socket, Peer> peers;
     ArrayBlockingQueue<String> channel;
     Consumer<Socket> handshake;
+    Consumer<Peer> onPeer;
 
     public final static Logger logger = Logger.getLogger(TCPTransport.class.getName());
 
 
-    public TCPTransport(String listenAddress, int listenPort, Consumer<Socket> handshake) {
+    public TCPTransport(String listenAddress, int listenPort, Consumer<Socket> handshake, Consumer<Peer> onPeer) {
         this.listenAddress = listenAddress;
         this.listenPort = listenPort;
         peers = new HashMap<>();
@@ -44,20 +46,27 @@ public class TCPTransport implements Transport {
         this.writeLock = rwl.writeLock();
         this.handshake = handshake;
         this.channel = new ArrayBlockingQueue<String>(100, true);
+        this.onPeer = onPeer;
     }
 
     public void listen() throws IOException {
         this.serverSocket = new ServerSocket(listenPort);
         while(true){
-            Socket socket = serverSocket.accept();
-            Thread.ofVirtual().start(() -> {
-                try {
-                    handleConnection(socket);
-                } catch (IOException e) {
-                    logger.severe("Could not handle connection");
-                    throw new RuntimeException(e);
-                }
-            });
+            try {
+                Socket socket = serverSocket.accept();
+                this.handshake.accept(socket);
+                this.onPeer.accept(new TCPPeer(socket, true));
+                Thread.ofVirtual().start(() -> {
+                    try {
+                        handleConnection(socket);
+                    } catch (IOException e) {
+                        logger.severe("Could not handle connection");
+                        throw new RuntimeException(e);
+                    }
+                });
+            } catch (Exception e) {
+                logger.severe("Could not accept connection");
+            }
         }
     }
 
