@@ -36,7 +36,6 @@ public class TCPTransport implements Transport {
 
     public final static Logger logger = Logger.getLogger(TCPTransport.class.getName());
 
-
     public TCPTransport(String listenAddress, int listenPort, Consumer<Socket> handshake, Consumer<Peer> onPeer) {
         this.listenAddress = listenAddress;
         this.listenPort = listenPort;

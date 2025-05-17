@@ -3,9 +3,11 @@ package my.own;
 import my.own.models.DiskStorage;
 import my.own.models.StoreOpts;
 import my.own.p2p.Storage;
+import my.own.utils.Hasher;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -17,9 +19,7 @@ public class DiskMain {
 
         Function<String , String> hasher = (String key) -> {
             try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-1");
-                byte[] hashBytes = digest.digest(key.getBytes());
-                String hexPath = HexFormat.of().formatHex(hashBytes);
+                String hexPath = Hasher.hash(key.getBytes());
                 int blockSize = 10;
                 int paths = hexPath.length() / blockSize;
                 String[] allPaths = new String[paths];
@@ -38,6 +38,6 @@ public class DiskMain {
         byte[] bytes = output.getBytes();
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         storage.writeStream("abc", bais);
-
+        System.out.println(new String(storage.read("abc")));
     }
 }
