@@ -6,5 +6,7 @@ public interface Storage {
     public void writeStream(String key, InputStream stream);
 
     byte[] read(String key);
+
+    void delete(String key);
 }
 

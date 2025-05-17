@@ -39,5 +39,6 @@ public class DiskMain {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         storage.writeStream("abc", bais);
         System.out.println(new String(storage.read("abc")));
+        storage.delete("abc");
     }
 }
